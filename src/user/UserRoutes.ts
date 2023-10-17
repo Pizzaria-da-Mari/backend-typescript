@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { UserController } from '../controllers/user';
-import { UserValidations } from '../validations/user';
+import { UserController } from './UserController';
+import { UserValidations } from './UserValidation';
 
-export default class UserRoute {
+export class UserRoute {
     public router: Router;
 
     private userController: UserController;

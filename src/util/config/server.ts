@@ -1,8 +1,8 @@
 import express from 'express';
 import config from './config';
-import ItemRoute from '../../routes/item';
-import UserRoute from '../../routes/user';
-import errorResponse from '../middlewares/error';
+import { ItemRoute } from '../../item/ItemRoutes';
+import { UserRoute } from '../../user/UserRoutes';
+import errorResponse from '../middleware/error';
 
 export default class Server {
     public app: express.Application;

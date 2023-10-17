@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
+import { ItemService } from './ItemService';
 import { validationResult } from 'express-validator';
-import { ItemService } from '../services/item';
-import ItemRepository from '../repositories/item';
 
 export class ItemController {
     private service: ItemService;
@@ -24,8 +23,8 @@ export class ItemController {
             await this.service.create(item);
 
             res.status(201).json({ message: 'Item criado com sucesso', item });
-        } catch (e) {
-            next(e);
+        } catch (error) {
+            next(error);
         }
     }
 
@@ -48,8 +47,8 @@ export class ItemController {
             }
 
             res.status(200).json({ message: 'Item modificado com sucesso' });
-        } catch (e) {
-            next(e);
+        } catch (error) {
+            next(error);
         }
     }
 
@@ -64,8 +63,8 @@ export class ItemController {
             }
 
             res.status(200).json({ message: 'Item excluído' });
-        } catch (e) {
-            next(e);
+        } catch (error) {
+            next(error);
         }
     }
 
@@ -118,7 +117,7 @@ export class ItemController {
             const items = await this.service.getByType(type);
 
             if (!items || items.length < 1) {
-                throw { status: 404, message: 'Items não encontrados' };
+                throw { status: 404, message: 'Itens não encontrados' };
             }
 
             res.status(200).json(items);

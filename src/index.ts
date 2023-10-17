@@ -1,7 +1,6 @@
-import { User } from './models/user';
+import { User } from './user/UserModel';
 import Mongo from './util/config/db';
 import Server from './util/config/server';
-
 
 declare global {
     namespace Express {

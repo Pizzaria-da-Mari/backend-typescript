@@ -1,5 +1,6 @@
-import { Request, Response, NextFunction } from 'express';
-import { UserService } from '../services/user';
+import { NextFunction, Request, Response } from 'express';
+import { UserService } from './UserService';
+import { validationResult } from 'express-validator';
 
 export class UserController {
     private service: UserService;
@@ -10,7 +11,13 @@ export class UserController {
 
     async create(req: Request, res: Response, next: NextFunction) {
         try {
-            //falta a validação de payload
+            const errors = validationResult(req);
+
+            if (!errors.isEmpty()) {
+                const message = errors.array().map((error) => error.msg);
+                throw { status: 400, message };
+            }
+
             const user = req.body;
 
             await this.service.create(user);
@@ -20,25 +27,9 @@ export class UserController {
             next(e);
         }
     }
-    /* 
-    async update(req: Request, res: Response, next: NextFunction) {
-        try {
-            const id = req.params.id;
-            const password = req.body.password;
-            const user = req.body.user;
 
-            const updatedUser = await this.service.update(id, password, user);
+    //async update(req: Request, res: Response, next: NextFunction) {}
 
-            if (!updatedUser) {
-                throw { message: 'Falha ao modificar o usuário' };
-            }
-
-            res.status(200).json({ message: 'Usuário modificado com sucesso' });
-        } catch (e) {
-            next(e);
-        }
-    }
-*/
     async delete(req: Request, res: Response, next: NextFunction) {
         try {
             const id = req.params.id;

@@ -1,7 +1,7 @@
 import 'dotenv/config';
 
 class Config {
-    private SERVER_PORT = Number(process.env.SERVER_PORT) || 5000;
+    private SERVER_PORT = Number(process.env.SERVER_PORT) || 6666;
     private MONGO_URI = process.env.MONGO_URI || '';
     private JWT_SECRET = process.env.JWT_SECRET || '';
 

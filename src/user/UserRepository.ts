@@ -1,24 +1,21 @@
-import { User, UserModel } from '../models/user';
-import { hashPassword } from '../util/middlewares/password';
+import { hashPassword } from '../util/middleware/password';
+import { UpdateUser } from './UserDTO';
+import { User, UserModel } from './UserModel';
 
-export default class UserRepository {
+export class UserRepository {
     async create(user: User): Promise<boolean> {
-        const hashedPassword = await hashPassword(user.password);
-
-        const newUser = await UserModel.create({
+        return !!UserModel.create({
             ...user,
-            password: hashedPassword
+            password: await hashPassword(user.password)
         });
-
-        return !!newUser;
     }
 
-    async update(id: string, user: User): Promise<boolean> {
-        return !!(await UserModel.findOneAndUpdate({ _id: id }, user, { new: true }));
+    async update(id: string, user: UpdateUser): Promise<boolean> {
+        return !!UserModel.updateOne({ id: id }, user, { new: true });
     }
 
     async delete(id: string): Promise<boolean> {
-        return !!(await UserModel.findOneAndDelete({ _id: id }));
+        return !!UserModel.deleteOne({ id: id });
     }
 
     async getAll(): Promise<User[]> {
@@ -32,4 +29,5 @@ export default class UserRepository {
     async getOne(field: string, value: string): Promise<User | null> {
         return await UserModel.findOne({ [field]: value });
     }
+
 }

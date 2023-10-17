@@ -1,42 +1,31 @@
-import { UpdateUser } from '../DTOs/user';
-import { User } from '../models/user';
-import UserRepository from '../repositories/user';
-import { comparePassword } from '../util/middlewares/password';
+import { UpdateUser } from './UserDTO';
+import { User } from './UserModel';
+import { UserRepository } from './UserRepository';
 
 export class UserService {
     private repository: UserRepository;
-    private memoryCache: User[] | null = null;
 
     constructor() {
         this.repository = new UserRepository();
-    }
-
-    private async cache(): Promise<User[] | null> {
-        if (this.memoryCache == null) {
-            const users = await this.repository.getAll();
-
-            if (!users) {
-                throw { message: 'Falha no cache' };
-            }
-
-            this.memoryCache = users;
-        }
-        return this.memoryCache;
     }
 
     async create(user: User): Promise<boolean> {
         const userExists = await this.repository.getBy(user.email, user.cpf, user.telephone);
 
         if (userExists.length !== 0) {
-            throw { status: 409, message: 'Usuário já existe' };
+            throw { statusCode: 409, message: 'Usuário já cadastrado' };
         }
 
-        this.memoryCache = null;
+        const newUser = await this.repository.create(user);
 
-        return await this.repository.create(user);
+        if (!newUser) {
+            throw { message: 'Falha ao criar usuário' };
+        }
+
+        return newUser;
     }
 /*
-    async update(id: string, password: string, user: User): Promise<boolean> {
+    async update(id: string, user: UpdateUser): Promise<boolean> {
         const userExists = await this.getById(id);
 
         if (!userExists) {
@@ -45,7 +34,7 @@ export class UserService {
 
         const checkExists = async (property: keyof UpdateUser, errorMessage: string) => {
             if (!!user[property]) {
-                const users = await this.cache();
+                const users = await this.repository.
                 const exists = users?.find((data) => data[property] === user[property] && data.id !== id);
 
                 if (exists) {
@@ -68,25 +57,28 @@ export class UserService {
     }
 */
     async delete(id: string): Promise<boolean> {
-        const userExists = await this.getById(id);
+        const userExists = await this.repository.getOne('id', id);
 
         if (!userExists) {
-            throw { status: 404, message: 'Usuário não encontrado' };
+            throw { statusCode: 404, message: 'Usuário não encontrado' };
         }
 
-        this.memoryCache = null;
+        const deletedUser = await this.repository.delete(id);
 
-        return await this.repository.delete(id);
+        if (!deletedUser) {
+            throw { message: 'Falha ao excluir usuário' };
+        }
+
+        return deletedUser;
     }
 
     async getById(id: string): Promise<User> {
-        const users = await this.cache();
-        const userById = users?.find((data) => data.id === id);
+        const user = await this.repository.getOne('id', id);
 
-        if (!userById) {
-            throw { status: 404, message: 'Usuário não encontrado' };
+        if (!user) {
+            throw { statusCode: 404, message: 'Usuário não encontrado' };
         }
 
-        return userById;
+        return user;
     }
 }
